@@ -11,12 +11,17 @@ class m5stickc
             return instance;
         }
 
+        axp192& get_pmic()
+        {
+            return pmic;
+        }
+
         m5stickc(m5stickc const&) = delete;
         void operator=(m5stickc const&) = delete;
 
 
     private:
         m5stickc();
-
+        axp192 pmic;
 };
 

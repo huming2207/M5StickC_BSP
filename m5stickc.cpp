@@ -3,7 +3,7 @@
 
 #include "m5stickc.hpp"
 
-m5stickc::m5stickc()
+m5stickc::m5stickc() : pmic()
 {
     // Initialise I2C channel 0 for PMIC and Gyro
     i2c_config_t config_0;
@@ -15,4 +15,6 @@ m5stickc::m5stickc()
     config_0.master.clk_speed = 100000;
     i2c_param_config(I2C_NUM_0, &config_0);
     ESP_ERROR_CHECK(i2c_driver_install(I2C_NUM_0, config_0.mode, 0, 0, 0));
+
+    pmic.init();
 }
