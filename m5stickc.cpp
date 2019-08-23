@@ -1,7 +1,10 @@
+#include <esp_log.h>
 #include <driver/i2c.h>
 #include <driver/gpio.h>
 
 #include "m5stickc.hpp"
+
+#define TAG "m5stickc"
 
 m5stickc::m5stickc() : pmic()
 {
@@ -16,5 +19,9 @@ m5stickc::m5stickc() : pmic()
     i2c_param_config(I2C_NUM_0, &config_0);
     ESP_ERROR_CHECK(i2c_driver_install(I2C_NUM_0, config_0.mode, 0, 0, 0));
 
-    pmic.init();
+    ESP_LOGI(TAG, "I2C_0 initialised");
+
+    ESP_ERROR_CHECK(pmic.init());
+
+    ESP_LOGI(TAG, "PMIC initialised");
 }
