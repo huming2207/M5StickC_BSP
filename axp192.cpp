@@ -53,7 +53,7 @@ esp_err_t axp192::init()
     auto ret = i2c_write_byte(0x10, 0xFF); // OLED_VPP enable
     ret = ret ?: i2c_write_byte(0x28, 0xCC); // Enable LDO2 and LDO3, LED & TFT at 3.0v
     ret = ret ?: i2c_write_byte(0x82, 0xFF); // Enable all ADCs
-    ret = ret ?: i2c_write_byte(0x33, 0xC1); // Enable charging, 200mA, 4.2v
+    ret = ret ?: i2c_write_byte(0x33, 0xC0); // Enable charging, 100mA, 4.2v
     ret = ret ?: i2c_write_byte(0xB8, 0x80); // Enable Coulomb Counter
     ret = ret ?: i2c_write_byte(0x12, 0x4D); // Enable DC-DC1, OLED_VDD
     ret = ret ?: i2c_write_byte(0x36, 0b00001100); // Key settings, press 4s to shut down
