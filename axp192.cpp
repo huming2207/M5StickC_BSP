@@ -3,36 +3,38 @@
 
 #include "axp192.hpp"
 
-#define AXP192_WRITE_ADDR 0x68
-#define AXP192_READ_ADDR  0x69
+#define AXP192_WRITE_ADDR 0x68 // (0x34 << 1 | 0)
+#define AXP192_READ_ADDR  0x69 // (0x34 << 1 | 1)
 
 #define AXP192_I2C_NUM I2C_NUM_0
 
 esp_err_t axp192::i2c_read(uint8_t reg, uint8_t *params, size_t param_len)
 {
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-    i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, AXP192_READ_ADDR, true);
-    i2c_master_write_byte(cmd, reg, true);
-    i2c_master_read(cmd, params, param_len, I2C_MASTER_ACK);
-    i2c_master_stop(cmd);
+    ESP_ERROR_CHECK(i2c_master_start(cmd));
+    ESP_ERROR_CHECK(i2c_master_write_byte(cmd, AXP192_WRITE_ADDR, true));
+    ESP_ERROR_CHECK(i2c_master_write_byte(cmd, reg, true));
+    ESP_ERROR_CHECK(i2c_master_write_byte(cmd, AXP192_READ_ADDR, true));
+    ESP_ERROR_CHECK(i2c_master_read(cmd, params, param_len, I2C_MASTER_ACK));
+    ESP_ERROR_CHECK(i2c_master_stop(cmd));
 
-    auto ret = i2c_master_cmd_begin(AXP192_I2C_NUM, cmd, pdMS_TO_TICKS(1000));
+    ESP_ERROR_CHECK(i2c_master_cmd_begin(AXP192_I2C_NUM, cmd, pdMS_TO_TICKS(1000)));
     i2c_cmd_link_delete(cmd);
-    return ret;
+    return ESP_OK;
 }
 
 esp_err_t axp192::i2c_write(uint8_t reg, uint8_t *params, size_t param_len)
 {
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-    i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, AXP192_WRITE_ADDR, true);
-    i2c_master_write(cmd, params, param_len, true);
-    i2c_master_stop(cmd);
+    ESP_ERROR_CHECK(i2c_master_start(cmd));
+    ESP_ERROR_CHECK(i2c_master_write_byte(cmd, AXP192_WRITE_ADDR, true));
+    ESP_ERROR_CHECK(i2c_master_write_byte(cmd, reg, true));
+    ESP_ERROR_CHECK(i2c_master_write(cmd, params, param_len, true));
+    ESP_ERROR_CHECK(i2c_master_stop(cmd));
 
-    auto ret = i2c_master_cmd_begin(AXP192_I2C_NUM, cmd, pdMS_TO_TICKS(1000));
+    ESP_ERROR_CHECK(i2c_master_cmd_begin(AXP192_I2C_NUM, cmd, pdMS_TO_TICKS(1000)));
     i2c_cmd_link_delete(cmd);
-    return ret;
+    return ESP_OK;
 }
 
 esp_err_t axp192::i2c_write_byte(uint8_t reg, uint8_t param)
@@ -108,4 +110,22 @@ float axp192::get_remain_capacity_mah()
     if(get_coulomb_counter_discharge(coul_discharge) != ESP_OK) return -1;
 
     return (float)(65536 * 0.5 * (coul_charge - coul_discharge) / 3600.0 / 25.0);
+}
+
+esp_err_t axp192::get_battery_voltage(uint16_t& vbat_mv)
+{
+    uint8_t vbat_0 = 0, vbat_1 = 0;
+    auto ret = i2c_read(0x78, &vbat_0, 1);
+    ret = ret ?: i2c_read(0x79, &vbat_1, 1);
+    vbat_mv = ((vbat_0 << 4U) | vbat_1);
+    return ret;
+}
+
+esp_err_t axp192::get_usb_voltage(uint16_t& input_mv)
+{
+    uint8_t vbat_0 = 0, vbat_1 = 0;
+    auto ret = i2c_read(0x5a, &vbat_0, 1);
+    ret = ret ?: i2c_read(0x5b, &vbat_1, 1);
+    input_mv = ((vbat_0 << 4U) | vbat_1);
+    return ret;
 }

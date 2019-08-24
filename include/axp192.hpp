@@ -15,6 +15,8 @@ class axp192
         esp_err_t get_coulomb_counter_charge(uint32_t& val_out);
         esp_err_t get_coulomb_counter_discharge(uint32_t& val_out);
         float get_remain_capacity_mah();
+        esp_err_t get_battery_voltage(uint16_t& vbat_mv);
+        esp_err_t get_usb_voltage(uint16_t& input_mv);
 
     private:
         axp192() = default;
