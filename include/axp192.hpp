@@ -23,8 +23,8 @@ class axp192
         void init();
         void i2c_read(uint8_t reg, uint8_t *params, size_t param_len);
         void i2c_write(uint8_t reg, uint8_t *params, size_t param_len);
-        void i2c_write_byte(uint8_t reg, uint8_t param);
-        void i2c_read_byte(uint8_t reg, uint8_t *result);
+        void i2c_write(uint8_t reg, uint8_t param);
+        void i2c_read(uint8_t reg, uint8_t *result);
 };
 
 
