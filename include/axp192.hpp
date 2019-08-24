@@ -3,6 +3,47 @@
 #include <driver/gpio.h>
 #include <driver/i2c.h>
 
+namespace axp192_def
+{
+    typedef union __attribute__((packed)) {
+        uint8_t val;
+        struct __attribute__((packed)) {
+            bool acin_exist:1;
+            bool acin_avail:1;
+            bool vbus_exist:1;
+            bool vbus_avail:1;
+            bool vbus_higher_vhold:1;
+            bool charging:1;
+            bool acin_short_to_acin:1;
+            bool start_from_vbus;
+        };
+    } input_status;
+
+    typedef union __attribute__((packed)) {
+        uint8_t val;
+        struct __attribute__((packed)) {
+            bool overheated:1;
+            bool charge_finished:1;
+            bool battery_exist:1;
+            bool _reserved_5:1;
+            bool battery_activate:1;
+            bool under_current_limit:1;
+            bool start_mode:1;
+            bool _reserved_0:1;
+        };
+    } mode_status;
+
+    typedef union __attribute__((packed)) {
+        uint8_t val;
+        struct __attribute__((packed)) {
+            uint8_t _reserved_7_3:5;
+            bool vbus_en:1;
+            bool vbus_session_en:1;
+            bool session_end:1;
+        };
+    } vbus_status;
+}
+
 class axp192
 {
     friend class m5stickc;
@@ -17,6 +58,13 @@ class axp192
         float get_remain_capacity_mah();
         uint16_t get_battery_voltage();
         uint16_t get_usb_voltage();
+        uint16_t get_vin_voltage();
+        uint16_t get_charge_current();
+        uint16_t get_discharge_current();
+        axp192_def::input_status get_input_status();
+        axp192_def::mode_status get_mode_status();
+        axp192_def::vbus_status get_vbus_status();
+
 
     private:
         axp192() = default;
