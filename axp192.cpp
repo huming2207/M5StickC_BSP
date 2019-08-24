@@ -116,7 +116,7 @@ uint16_t axp192::get_battery_voltage()
     uint8_t vbat_0 = 0, vbat_1 = 0;
     i2c_read(0x78, &vbat_0);
     i2c_read(0x79, &vbat_1);
-    return (uint16_t)((vbat_0 << 4U) + vbat_1);
+    return (uint16_t)(((vbat_0 << 4U) + vbat_1) * 1.1);
 }
 
 uint16_t axp192::get_usb_voltage()
@@ -124,7 +124,7 @@ uint16_t axp192::get_usb_voltage()
     uint8_t vusb_0 = 0, vusb_1 = 0;
     i2c_read(0x5a, &vusb_0);
     i2c_read(0x5b, &vusb_1);
-    return (uint16_t)((vusb_0 << 4U) + vusb_1);
+    return (uint16_t)(((vusb_0 << 4U) + vusb_1) * 1.7);
 }
 
 uint16_t axp192::get_vin_voltage()
@@ -132,7 +132,7 @@ uint16_t axp192::get_vin_voltage()
     uint8_t vin_0 = 0, vin_1 = 0;
     i2c_read(0x56, &vin_0);
     i2c_read(0x57, &vin_1);
-    return (uint16_t)((vin_0 << 4U) + vin_1);
+    return (uint16_t)(((vin_0 << 4U) + vin_1) * 1.7);
 }
 
 uint16_t axp192::get_charge_current()
@@ -140,7 +140,7 @@ uint16_t axp192::get_charge_current()
     uint8_t byte_0 = 0, byte_1 = 0;
     i2c_read(0x7a, &byte_0);
     i2c_read(0x7b, &byte_1);
-    return (uint16_t)((byte_0 << 4U) + byte_1);
+    return (uint16_t)(((byte_0 << 4U) + byte_1) / 2);
 }
 
 uint16_t axp192::get_discharge_current()
@@ -148,7 +148,7 @@ uint16_t axp192::get_discharge_current()
     uint8_t byte_0 = 0, byte_1 = 0;
     i2c_read(0x7c, &byte_0);
     i2c_read(0x7d, &byte_1);
-    return (uint16_t)((byte_0 << 4U) + byte_1);
+    return (uint16_t)(((byte_0 << 4U) + byte_1) / 2);
 }
 
 axp192_def::input_status axp192::get_input_status()
