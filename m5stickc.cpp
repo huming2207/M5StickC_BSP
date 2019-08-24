@@ -21,7 +21,6 @@ m5stickc::m5stickc() : pmic()
 
     ESP_LOGI(TAG, "I2C_0 initialised");
 
-    ESP_ERROR_CHECK(pmic.init());
-
+    pmic.init();
     ESP_LOGI(TAG, "PMIC initialised");
 }
