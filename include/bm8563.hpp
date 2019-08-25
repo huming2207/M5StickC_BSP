@@ -1,8 +1,9 @@
 #pragma once
 
 #include <cstdint>
+#include "m5_i2c_dev.hpp"
 
-class bm8563
+class bm8563 : protected m5_i2c_dev
 {
     public:
         uint8_t get_sec();
