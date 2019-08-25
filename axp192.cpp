@@ -41,24 +41,14 @@ void axp192::clear_coulomb_counter()
 
 uint32_t axp192::get_coulomb_counter_charge()
 {
-    uint8_t buf_0 = 0, buf_1 = 0, buf_2 = 0, buf_3 = 0;
-    i2c_read(AXP192_ADDR, 0xB0, &buf_0);
-    i2c_read(AXP192_ADDR, 0xB1, &buf_1);
-    i2c_read(AXP192_ADDR, 0xB2, &buf_2);
-    i2c_read(AXP192_ADDR, 0xB3, &buf_3);
-
-    return (uint32_t)((buf_0 << 24U) | (buf_1 << 16U) | (buf_2 << 8U) | buf_3);
+    return (uint32_t)((i2c_read(AXP192_ADDR, 0xB0) << 24U) | (i2c_read(AXP192_ADDR, 0xB1) << 16U) |
+                        (i2c_read(AXP192_ADDR, 0xB2) << 8U) | i2c_read(AXP192_ADDR, 0xB3));
 }
 
 uint32_t axp192::get_coulomb_counter_discharge()
 {
-    uint8_t buf_0 = 0, buf_1 = 0, buf_2 = 0, buf_3 = 0;
-    i2c_read(AXP192_ADDR, 0xB4, &buf_0);
-    i2c_read(AXP192_ADDR, 0xB5, &buf_1);
-    i2c_read(AXP192_ADDR, 0xB6, &buf_2);
-    i2c_read(AXP192_ADDR, 0xB7, &buf_3);
-
-    return (uint32_t)((buf_0 << 24U) | (buf_1 << 16U) | (buf_2 << 8U) | buf_3);
+    return (uint32_t)((i2c_read(AXP192_ADDR, 0xB4) << 24U) | (i2c_read(AXP192_ADDR, 0xB5) << 16U) |
+                      (i2c_read(AXP192_ADDR, 0xB6) << 8U) | i2c_read(AXP192_ADDR, 0xB7));
 }
 
 float axp192::get_remain_capacity_mah()
@@ -71,61 +61,46 @@ float axp192::get_remain_capacity_mah()
 
 uint16_t axp192::get_battery_voltage()
 {
-    uint8_t vbat_0 = 0, vbat_1 = 0;
-    i2c_read(AXP192_ADDR, 0x78, &vbat_0);
-    i2c_read(AXP192_ADDR, 0x79, &vbat_1);
-    return (uint16_t)(((vbat_0 << 4U) + vbat_1) * 1.1);
+    return (uint16_t)(((i2c_read(AXP192_ADDR, 0x78) << 4U) + i2c_read(AXP192_ADDR, 0x79)) * 1.1);
 }
 
 uint16_t axp192::get_usb_voltage()
 {
-    uint8_t vusb_0 = 0, vusb_1 = 0;
-    i2c_read(AXP192_ADDR, 0x5a, &vusb_0);
-    i2c_read(AXP192_ADDR, 0x5b, &vusb_1);
-    return (uint16_t)(((vusb_0 << 4U) + vusb_1) * 1.7);
+    return (uint16_t)(((i2c_read(AXP192_ADDR, 0x5a) << 4U) + i2c_read(AXP192_ADDR, 0x5b)) * 1.7);
 }
 
 uint16_t axp192::get_vin_voltage()
 {
-    uint8_t vin_0 = 0, vin_1 = 0;
-    i2c_read(AXP192_ADDR, 0x56, &vin_0);
-    i2c_read(AXP192_ADDR, 0x57, &vin_1);
-    return (uint16_t)(((vin_0 << 4U) + vin_1) * 1.7);
+    return (uint16_t)(((i2c_read(AXP192_ADDR, 0x56) << 4U) + i2c_read(AXP192_ADDR, 0x57)) * 1.7);
 }
 
 uint16_t axp192::get_charge_current()
 {
-    uint8_t byte_0 = 0, byte_1 = 0;
-    i2c_read(AXP192_ADDR, 0x7a, &byte_0);
-    i2c_read(AXP192_ADDR, 0x7b, &byte_1);
-    return (uint16_t)(((byte_0 << 4U) + byte_1) / 2);
+    return (uint16_t)(((i2c_read(AXP192_ADDR, 0x7a) << 4U) + i2c_read(AXP192_ADDR, 0x7b)) / 2);
 }
 
 uint16_t axp192::get_discharge_current()
 {
-    uint8_t byte_0 = 0, byte_1 = 0;
-    i2c_read(AXP192_ADDR, 0x7c, &byte_0);
-    i2c_read(AXP192_ADDR, 0x7d, &byte_1);
-    return (uint16_t)(((byte_0 << 4U) + byte_1) / 2);
+    return (uint16_t)(((i2c_read(AXP192_ADDR, 0x7c) << 4U) + i2c_read(AXP192_ADDR, 0x7d)) / 2);
 }
 
 axp192_def::input_status axp192::get_input_status()
 {
     axp192_def::input_status result;
-    i2c_read(AXP192_ADDR, 0x00, &result.val);
+    result.val = i2c_read(AXP192_ADDR, 0x00);
     return result;
 }
 
 axp192_def::mode_status axp192::get_mode_status()
 {
     axp192_def::mode_status result;
-    i2c_read(AXP192_ADDR, 0x01, &result.val);
+    result.val = i2c_read(AXP192_ADDR, 0x01);
     return result;
 }
 
 axp192_def::vbus_status axp192::get_vbus_status()
 {
     axp192_def::vbus_status result;
-    i2c_read(AXP192_ADDR, 0x02, &result.val);
+    result.val = i2c_read(AXP192_ADDR, 0x02);
     return result;
 }

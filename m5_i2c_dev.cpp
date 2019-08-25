@@ -38,7 +38,9 @@ void m5_i2c_dev::i2c_write(uint8_t addr, uint8_t reg, uint8_t param, i2c_port_t 
     i2c_write(addr, reg, &param, 1, i2c_channel);
 }
 
-void m5_i2c_dev::i2c_read(uint8_t addr, uint8_t reg, uint8_t *result, i2c_port_t i2c_channel)
+uint8_t m5_i2c_dev::i2c_read(uint8_t addr, uint8_t reg, i2c_port_t i2c_channel)
 {
-    i2c_read(addr, reg, result, 1, i2c_channel);
+    uint8_t result = 0;
+    i2c_read(addr, reg, &result, 1, i2c_channel);
+    return result;
 }
