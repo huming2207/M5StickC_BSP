@@ -2,6 +2,7 @@
 
 #include <driver/gpio.h>
 #include <driver/i2c.h>
+#include "m5_i2c_dev.hpp"
 
 namespace axp192_def
 {
@@ -44,7 +45,7 @@ namespace axp192_def
     } vbus_status;
 }
 
-class axp192
+class axp192 : protected m5_i2c_dev
 {
     friend class m5stickc;
     public:
@@ -69,10 +70,6 @@ class axp192
     private:
         axp192() = default;
         void init();
-        void i2c_read(uint8_t reg, uint8_t *params, size_t param_len);
-        void i2c_write(uint8_t reg, uint8_t *params, size_t param_len);
-        void i2c_write(uint8_t reg, uint8_t param);
-        void i2c_read(uint8_t reg, uint8_t *result);
 };
 
 

@@ -11,9 +11,9 @@ class m5stickc
             return instance;
         }
 
-        axp192& get_pmic()
+        axp192& pmic()
         {
-            return pmic;
+            return _axp192;
         }
 
         m5stickc(m5stickc const&) = delete;
@@ -21,7 +21,8 @@ class m5stickc
 
 
     private:
+
         m5stickc();
-        axp192 pmic;
+        axp192 _axp192;
 };
 

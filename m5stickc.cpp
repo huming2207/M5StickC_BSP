@@ -6,7 +6,7 @@
 
 #define TAG "m5stickc"
 
-m5stickc::m5stickc() : pmic()
+m5stickc::m5stickc() : _axp192()
 {
     // Initialise I2C channel 0 for PMIC and Gyro
     i2c_config_t config_0;
@@ -21,6 +21,6 @@ m5stickc::m5stickc() : pmic()
 
     ESP_LOGI(TAG, "I2C_0 initialised");
 
-    pmic.init();
+    _axp192.init();
     ESP_LOGI(TAG, "PMIC initialised");
 }
