@@ -25,13 +25,13 @@ class bm8563 : protected m5_i2c_dev
         void set_minute_alarm(uint8_t minute);
         void enable_minute_alarm(bool enable);
         uint8_t get_hour_alarm();
-        void set_hour_alarm(uint8_t minute);
+        void set_hour_alarm(uint8_t hour);
         void enable_hour_alarm(bool enable);
         uint8_t get_day_alarm();
-        void set_day_alarm(uint8_t minute);
+        void set_day_alarm(uint8_t day);
         void enable_day_alarm(bool enable);
         uint8_t get_dow_alarm();
-        void set_dow_alarm(uint8_t minute);
+        void set_dow_alarm(uint8_t dow);
         void enable_dow_alarm(bool enable);
 
     private:
