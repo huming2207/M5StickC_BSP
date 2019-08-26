@@ -1,3 +1,6 @@
+#include <ctime>
+#include <sys/time.h>
+
 #include <esp_log.h>
 #include <driver/i2c.h>
 #include <driver/gpio.h>
@@ -6,7 +9,7 @@
 
 #define TAG "m5stickc"
 
-m5stickc::m5stickc() : _axp192()
+m5stickc::m5stickc() : _axp192(), _bm8563()
 {
     // Initialise I2C channel 0 for PMIC and Gyro
     i2c_config_t config_0;
@@ -23,4 +26,48 @@ m5stickc::m5stickc() : _axp192()
 
     _axp192.init();
     ESP_LOGI(TAG, "PMIC initialised");
+}
+
+void m5stickc::load_time(const std::string& tz)
+{
+    struct tm time_info{};
+    time_info.tm_hour = _bm8563.get_hour();
+    time_info.tm_mday = _bm8563.get_day();
+    time_info.tm_mon = _bm8563.get_month() - 1;
+    time_info.tm_min = _bm8563.get_min();
+    time_info.tm_sec = _bm8563.get_sec();
+    time_info.tm_year = _bm8563.get_year() + 100;
+
+    setenv("TZ", tz.c_str(), 1);
+    tzset();
+
+    auto rtc_timestamp = mktime(&time_info);
+    ESP_LOGI(TAG, "load_time Timestamp: %lu", rtc_timestamp);
+
+    struct timeval time_now{};
+    time_now.tv_sec = rtc_timestamp;
+
+    settimeofday(&time_now, nullptr);
+}
+
+void m5stickc::save_time(const std::string& tz)
+{
+    // Get current time
+    setenv("TZ", tz.c_str(), 1);
+    tzset();
+
+    time_t curr_time = time(nullptr);
+    struct tm result_tm{};
+    struct tm *curr_tm = localtime_r(&curr_time, &result_tm);
+
+    ESP_LOGI(TAG, "save_time Timestamp: %lu", curr_time);
+
+    // Write to RTC
+    _bm8563.set_day(curr_tm->tm_mday);
+    _bm8563.set_dow(curr_tm->tm_wday);
+    _bm8563.set_year(curr_tm->tm_year - 100); // Yea we are in 21st century...
+    _bm8563.set_month(curr_tm->tm_mon + 1); // POSIX tm month is starting from 0...
+    _bm8563.set_min(curr_tm->tm_min);
+    _bm8563.set_hour(curr_tm->tm_hour);
+    _bm8563.set_sec(curr_tm->tm_sec);
 }
