@@ -5,6 +5,7 @@
 
 class bm8563 : protected m5_i2c_dev
 {
+    friend class m5stickc;
     public:
         uint8_t get_sec();
         void set_sec(uint8_t sec);
@@ -36,5 +37,6 @@ class bm8563 : protected m5_i2c_dev
 
     private:
         bm8563() = default;
-
+        uint8_t bcd2digit(uint8_t bcd);
+        uint8_t digit2bcd(uint8_t digit);
 };
