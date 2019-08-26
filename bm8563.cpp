@@ -139,9 +139,8 @@ void bm8563::enable_dow_alarm(bool enable)
 // From: https://github.com/m5stack/M5StickC/blob/master/src/RTC.cpp
 uint8_t bm8563::bcd2digit(uint8_t bcd)
 {
-    uint8_t tmp = 0;
-    tmp = ((uint8_t)(bcd & 0xF0) >> 0x4) * 10;
-    return (tmp + (bcd & 0x0F));
+    uint8_t msb = ((uint8_t)(bcd & 0xF0) >> 0x4) * 10;
+    return (msb + (bcd & 0x0F));
 }
 
 uint8_t bm8563::digit2bcd(uint8_t digit)
