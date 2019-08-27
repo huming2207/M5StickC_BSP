@@ -7,8 +7,6 @@
 #define TAG "axp192"
 #define AXP192_ADDR 0x34
 
-#define AXP192_I2C_NUM I2C_NUM_0
-
 void axp192::init()
 {
     i2c_write(AXP192_ADDR, 0x10, 0xFF); // OLED_VPP enable
