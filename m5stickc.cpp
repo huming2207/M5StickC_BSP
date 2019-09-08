@@ -1,6 +1,7 @@
 #include <ctime>
 #include <sys/time.h>
 
+#include <driver/gpio.h>
 #include <esp_log.h>
 #include <driver/i2c.h>
 #include <driver/gpio.h>
@@ -24,6 +25,7 @@ m5stickc::m5stickc() : _axp192(), _bm8563()
 
     ESP_LOGI(TAG, "I2C_0 initialised");
 
+    // Initialise PMIC
     _axp192.init();
     ESP_LOGI(TAG, "PMIC initialised");
 }
@@ -42,7 +44,7 @@ void m5stickc::load_time(const std::string& tz)
     tzset();
 
     auto rtc_timestamp = mktime(&time_info);
-    ESP_LOGI(TAG, "load_time Timestamp: %lu", rtc_timestamp);
+    ESP_LOGD(TAG, "load_time Timestamp: %lu", rtc_timestamp);
 
     struct timeval time_now{};
     time_now.tv_sec = rtc_timestamp;
@@ -60,7 +62,7 @@ void m5stickc::save_time(const std::string& tz)
     struct tm result_tm{};
     struct tm *curr_tm = localtime_r(&curr_time, &result_tm);
 
-    ESP_LOGI(TAG, "save_time Timestamp: %lu", curr_time);
+    ESP_LOGD(TAG, "save_time Timestamp: %lu", curr_time);
 
     // Write to RTC
     _bm8563.set_day(curr_tm->tm_mday);
