@@ -1,5 +1,6 @@
 #include <ctime>
 #include <sys/time.h>
+#include <esp_sntp.h>
 
 #include <driver/gpio.h>
 #include <esp_log.h>
@@ -28,6 +29,16 @@ m5stickc::m5stickc() : _axp192(), _bm8563()
     // Initialise PMIC
     _axp192.init();
     ESP_LOGI(TAG, "PMIC initialised");
+
+    // Initialise on-board red LED
+    gpio_config_t io_conf;
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    io_conf.pin_bit_mask = (1ULL << GPIO_NUM_10);
+    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+    gpio_config(&io_conf);
+    gpio_set_level(GPIO_NUM_10, 0);
 }
 
 void m5stickc::load_time(const std::string& tz)
@@ -73,3 +84,30 @@ void m5stickc::save_time(const std::string& tz)
     _bm8563.set_hour(curr_tm->tm_hour);
     _bm8563.set_sec(curr_tm->tm_sec);
 }
+
+void m5stickc::sync_time()
+{
+    xTaskCreate([](void *context) {
+        sntp_setoperatingmode(SNTP_OPMODE_POLL);
+        sntp_setservername(0, "pool.ntp.org");
+        sntp_setservername(1, "time.apple.com");
+        sntp_set_sync_mode(SNTP_SYNC_MODE_IMMED);
+        sntp_init();
+        while(sntp_get_sync_status() != SNTP_SYNC_STATUS_COMPLETED) {
+            gpio_set_level(GPIO_NUM_10, gpio_get_level(GPIO_NUM_10) == 1 ? 0 : 1);
+            vTaskDelay(pdMS_TO_TICKS(200));
+        }
+        vTaskDelete(nullptr);
+    }, "m5_sntp", 3072, this, 2, nullptr);
+}
+
+void m5stickc::set_led(bool en)
+{
+    gpio_set_level(GPIO_NUM_10, en ? 1 : 0);
+}
+
+void m5stickc::toggle_led()
+{
+    gpio_set_level(GPIO_NUM_10, gpio_get_level(GPIO_NUM_10) == 1 ? 0 : 1);
+}
+
