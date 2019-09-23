@@ -30,7 +30,6 @@ class m5stickc
     public:
         void load_time(const std::string& tz = "AEST-10AEDT,M10.1.0,M4.1.0/3"); // Use Australia/Melbourne timezone for testing
         void save_time(const std::string& tz = "AEST-10AEDT,M10.1.0,M4.1.0/3");
-        void sync_time();
         void set_led(bool en);
         void toggle_led();
     private:
