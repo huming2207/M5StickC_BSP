@@ -87,7 +87,7 @@ void m5stickc::save_time(const std::string& tz)
 
 void m5stickc::set_led(bool en)
 {
-    gpio_set_level(GPIO_NUM_10, en ? 1 : 0);
+    gpio_set_level(GPIO_NUM_10, en ? 0 : 1);
 }
 
 void m5stickc::toggle_led()
