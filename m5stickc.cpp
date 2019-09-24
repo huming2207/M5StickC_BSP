@@ -1,7 +1,10 @@
 #include <ctime>
+#include <functional>
+
 #include <sys/time.h>
 #include <esp_sntp.h>
-
+#include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
 #include <driver/gpio.h>
 #include <esp_log.h>
 #include <driver/i2c.h>
@@ -10,6 +13,22 @@
 #include "m5stickc.hpp"
 
 #define TAG "m5stickc"
+#define BUTTON_A_IO GPIO_NUM_37
+#define BUTTON_B_IO GPIO_NUM_39
+
+xQueueHandle m5stickc::button_evt_queue = nullptr;
+
+void IRAM_ATTR m5stickc::btn_a_isr_handler(void* arg)
+{
+    uint32_t gpio_num = (long)arg;
+    xQueueSendFromISR(button_evt_queue, &gpio_num, nullptr);
+}
+
+void IRAM_ATTR m5stickc::btn_b_isr_handler(void* arg)
+{
+    uint32_t gpio_num = (long)arg;
+    xQueueSendFromISR(button_evt_queue, &gpio_num, nullptr);
+}
 
 m5stickc::m5stickc() : _axp192(), _bm8563()
 {
@@ -39,6 +58,22 @@ m5stickc::m5stickc() : _axp192(), _bm8563()
     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
     gpio_config(&io_conf);
     gpio_set_level(GPIO_NUM_10, 1);
+
+    // Initialise button interrupt
+    gpio_config_t btn_conf;
+    btn_conf.intr_type = GPIO_INTR_ANYEDGE;
+    btn_conf.mode = GPIO_MODE_INPUT;
+    btn_conf.pin_bit_mask = (1ULL << GPIO_NUM_37) | (1ULL << GPIO_NUM_39);
+    btn_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    btn_conf.pull_up_en = GPIO_PULLUP_ENABLE;
+    gpio_config(&btn_conf);
+    gpio_install_isr_service(0);
+    gpio_isr_handler_add(BUTTON_A_IO, btn_a_isr_handler, (void*)BUTTON_A_IO);
+    gpio_isr_handler_add(BUTTON_B_IO, btn_b_isr_handler, (void*)BUTTON_B_IO);
+
+    // Initialise queue for button interrupt
+    button_evt_queue = xQueueCreate(10, sizeof(gpio_num_t));
+    xTaskCreate(m5stickc::on_btn_intr, "btn_intr", 2048, this, 10, nullptr);
 }
 
 void m5stickc::load_time(const std::string& tz)
@@ -94,4 +129,43 @@ void m5stickc::toggle_led()
 {
     gpio_set_level(GPIO_NUM_10, gpio_get_level(GPIO_NUM_10) == 1 ? 0 : 1);
 }
+
+void m5stickc::on_btn_a_press(const std::function<void()>& func)
+{
+    btn_a_press_cb = func;
+}
+
+void m5stickc::on_btn_b_press(const std::function<void()>& func)
+{
+    btn_b_press_cb = func;
+}
+
+void m5stickc::on_btn_a_release(const std::function<void()>& func)
+{
+    btn_a_release_cb = func;
+}
+
+void m5stickc::on_btn_b_release(const std::function<void()>& func)
+{
+    btn_b_release_cb = func;
+}
+
+void m5stickc::on_btn_intr(void *ctx)
+{
+    gpio_num_t gpio_num = GPIO_NUM_0;
+    auto *instance = static_cast<m5stickc*>(ctx);
+    while(true) {
+        if(xQueueReceive(button_evt_queue, &gpio_num, portMAX_DELAY)) {
+            if(instance == nullptr) return;
+            if(gpio_num == BUTTON_A_IO) {
+                if(gpio_get_level(BUTTON_A_IO) == 0) instance->btn_a_press_cb();
+                else instance->btn_a_release_cb();
+            } else if(gpio_num == BUTTON_B_IO) {
+                if(gpio_get_level(BUTTON_B_IO) == 0) instance->btn_b_press_cb();
+                else instance->btn_b_release_cb();
+            }
+        }
+    }
+}
+
 
