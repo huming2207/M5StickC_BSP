@@ -1,5 +1,6 @@
 #include <cstdint>
 #include <cstddef>
+#include <cmath>
 #include <esp_log.h>
 
 #include "axp192.hpp"
@@ -101,4 +102,36 @@ axp192_def::vbus_status axp192::get_vbus_status()
     axp192_def::vbus_status result;
     result.val = i2c_read(AXP192_ADDR, 0x02);
     return result;
+}
+
+uint16_t axp192::get_ldo_2_mv()
+{
+    return (i2c_read(AXP192_ADDR, 0x28) & 0xf0) * 100 + 1800;
+}
+
+uint16_t axp192::get_ldo_3_mv()
+{
+    return (i2c_read(AXP192_ADDR, 0x28) & 0x0f) * 100 + 1800;
+}
+
+esp_err_t axp192::set_ldo_2_mv(uint16_t mv)
+{
+    if(mv > 3300) return ESP_ERR_INVALID_ARG;
+    uint8_t reg = i2c_read(AXP192_ADDR, 0x28);
+    uint8_t new_val = floor((mv - 1800.0) / 100);
+    reg = ((reg & 0x0f) | (new_val << 4U)); // Set bit 4 to 7 for LDO2
+
+    i2c_write(AXP192_ADDR, 0x28, reg);
+    return ESP_OK;
+}
+
+esp_err_t axp192::set_ldo_3_mv(uint16_t mv)
+{
+    if(mv > 3300) return ESP_ERR_INVALID_ARG;
+    uint8_t reg = i2c_read(AXP192_ADDR, 0x28);
+    uint8_t new_val = floor((mv - 1800.0) / 100);
+    reg = ((reg & 0xf0) | (new_val & 0x0f)); // Set bit 0 to 3 for LDO3
+
+    i2c_write(AXP192_ADDR, 0x28, reg);
+    return ESP_OK;
 }

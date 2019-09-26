@@ -62,6 +62,10 @@ class axp192 : protected m5_i2c_dev
         uint16_t get_vin_voltage();
         uint16_t get_charge_current();
         uint16_t get_discharge_current();
+        uint16_t get_ldo_2_mv();
+        uint16_t get_ldo_3_mv();
+        esp_err_t set_ldo_2_mv(uint16_t mv);
+        esp_err_t set_ldo_3_mv(uint16_t mv);
         axp192_def::input_status get_input_status();
         axp192_def::mode_status get_mode_status();
         axp192_def::vbus_status get_vbus_status();
