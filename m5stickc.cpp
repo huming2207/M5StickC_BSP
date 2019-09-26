@@ -168,4 +168,11 @@ void m5stickc::on_btn_intr(void *ctx)
     }
 }
 
+void m5stickc::set_brightness(uint8_t val)
+{
+    if(val > 12) val = 12; // The LDO adjustable range is 1.8 to 3.3v, but we need to Limit to 3.0v
+    uint16_t mv = val * 100 + 1800;
+    _axp192.set_ldo_2_mv(mv);
+}
+
 

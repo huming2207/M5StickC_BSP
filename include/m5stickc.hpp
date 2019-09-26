@@ -39,6 +39,8 @@ class m5stickc
         void on_btn_a_release(const std::function<void()>& func);
         void on_btn_b_release(const std::function<void()>& func);
 
+        void set_brightness(uint8_t val);
+
     private:
         m5stickc();
         static void on_btn_intr(void *ctx);
